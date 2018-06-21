@@ -1,0 +1,112 @@
+package tatoc;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+
+
+public class tatoc
+{
+  public static WebDriver driver;
+
+	public tatoc() 
+  {
+		System.out.println("launching chrome browser");
+		driver = new ChromeDriver();
+		driver.get("http://10.0.1.86/tatoc");
+	}
+
+	public void ex1()
+  {
+		driver.findElement(By.xpath("/html/body/div/div[2]/a[1]")).click();
+		driver.findElement(By.className("greenbox")).click();
+	}
+
+	By Proceed_link = By.linkText("Proceed");
+
+	By Box1 = By.xpath("//div[text()='Box 1']");
+	By Box2 = By.xpath("//div[text()='Box 2']");
+
+	public void clickElement(By _element) 
+  {
+		findElement(_element).click();
+	}
+
+	By RepaintBox2_link = By.linkText("Repaint Box 2");
+
+	public String getElementColor(WebElement we) 
+  {
+		return we.getCssValue("background-color");
+	}
+
+	public WebElement findElement(By _element)
+  {
+		return driver.findElement(_element);
+	}
+		public void FrameDungeon() 
+    {
+
+		driver.switchTo().defaultContent();
+		driver.switchTo().frame(0);
+		WebElement weBox1 = findElement(Box1);
+		String box1Color = getElementColor(weBox1);
+		driver.switchTo().frame("child");
+		WebElement weBox2 = findElement(Box2);
+		String box2Color = getElementColor(weBox2);
+		if (box1Color.equals(box2Color)) 
+    {
+			driver.switchTo().parentFrame();
+			clickElement(Proceed_link);
+		} 
+    else 
+      {
+			driver.switchTo().parentFrame();
+      clickElement(RepaintBox2_link);
+			FrameDungeon();
+		  }
+  	}
+
+	  public void dragaround() 
+    {
+		driver.switchTo().defaultContent();
+		WebElement from = driver.findElement(By.id("dragbox"));
+		WebElement to = driver.findElement(By.id("dropbox"));
+		Actions act = new Actions(driver);
+		act.dragAndDrop(from, to).build().perform();
+		driver.findElement(By.linkText("Proceed")).click();
+		}
+
+	public void windowpopup()
+	  {
+		driver.findElement(By.linkText("Launch Popup Window")).click();
+		String winhandleCurrent = driver.getWindowHandle();
+		for(String winHandle : driver.getWindowHandles())
+    {    	
+		driver.switchTo().window(winHandle);    
+		}
+		driver.findElement(By.id("name")).sendKeys("RAHUL");
+		driver.findElement(By.id("submit")).click();
+		driver.switchTo().window(winhandleCurrent);
+		driver.findElement(By.linkText("Proceed")).click();
+  	}
+
+	public void cookie()
+	{
+	driver.findElement(By.linkText("Generate Token")).click();
+	String tempToken = driver.findElement(By.id("token")).getText();
+	Cookie ck= new Cookie("Token", tempToken.substring(7));
+	driver.manage().addCookie(ck);
+	driver.findElement(By.linkText("Proceed")).click();
+	}
+	public static void main(String[] args) {
+		tatoc t = new tatoc();
+		t.ex1();
+		t.FrameDungeon();
+	    t.dragaround();
+	    t.windowpopup();
+	    t.cookie();
+	}
+
+}
